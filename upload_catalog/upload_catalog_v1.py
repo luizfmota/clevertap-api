@@ -20,13 +20,6 @@ headers = {
 }
 
 
-## CATALOG INFO
-name = "your_catalog_name"
-creator = "catalog_creator"
-email = "catalog_creator_email"
-csv_file_path = "files/catalog_to_update.csv"
-
-
 def create_dataframe(query):
     """
     MOUNT DATAFRAME TO CREATE CSV FILE
@@ -51,7 +44,7 @@ def create_csv(df):
     print('Starting CSV creation')
     print('...')
     catalog = pd.DataFrame(df)
-    catalog.to_csv(csv_file_path, index=False)
+    catalog.to_csv(environ.get('catalog_csv_file_path'), index=False)
     print('CSV Created')
     print('...')
 
@@ -68,12 +61,12 @@ def upload_catalog():
         url_put = response.json()['presignedS3URL']
         print('URL for upload created. Starting Upload')
         print('...')
-        upload_csv = requests.put(url_put, data=open(csv_file_path, 'rb'))
+        upload_csv = requests.put(url_put, data=open(environ.get('catalog_csv_file_path'), 'rb'))
 
         if upload_csv.status_code == 200:
             print('Upload completed... Sending confirmation that the CSV has been uploaded')
             print('...')
-            catalog_data = {'name': name, 'creator': creator, 'email': email, 'url': url_put, 'replace': 'true'} #Replace - true for overwrite existent catalog. false for new catalog.
+            catalog_data = "{'name': '"+environ.get("catalog_name")+"', 'creator': '"+environ.get("catalog_creator")+"', 'email': '"+environ.get("catalog_email")+"', 'url': '"+url_put+"', 'replace': true}" #Replace - true for overwrite existent catalog. false for new catalog.
             confirmation = requests.post('https://us1.api.clevertap.com/upload_catalog_completed', headers=headers, data=str(catalog_data))
 
             if confirmation.status_code == 200:
@@ -91,3 +84,4 @@ if __name__ == '__main__':
     query_result = create_dataframe(query)
     create_csv(query_result)
     upload_catalog()
+    

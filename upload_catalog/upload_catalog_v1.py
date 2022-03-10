@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 
 load_dotenv(find_dotenv(".env"))
 
-## QUERY TO GET PROFILE INFO
+## QUERY TO GET CATALOG ITEMS INFO
 columns = "your_columns_from_db___dont_forget_the_required_columns"
 query = f"select {columns} from your_source_table"
 
